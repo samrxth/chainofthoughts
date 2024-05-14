@@ -14,17 +14,15 @@ llmforscore = ChatOpenAI(api_key=openai_api_key, model="gpt-4o", temperature=1.5
 thought_prompt = PromptTemplate(
     input_variables=["headline", "article"],
     template="""
-    no formatting and extra text
     Headline: {headline}
     Article: {article}
-    Generate the top 5 initial thoughts based on the news article.
+    Generate the top 5 initial thoughts based on the news article. Do not generate an optimistic thought for a solely negative article and vice versa
     """,
 )
 
 branch_prompt = PromptTemplate(
     input_variables=["thought"],
     template="""
-    no formatting and extra text
     Thought: {thought}
     Generate further insights and explanations for this thought.
     """,
@@ -33,48 +31,19 @@ branch_prompt = PromptTemplate(
 score_prompt = PromptTemplate(
     input_variables=["thought", "explanation"],
     template="""
-    no formatting and extra text
-     your task is to analyze and predict the potential impact of this text content on the respective company's stock price. Use the following detailed guidelines to assign a value on a scale from -1 to 1, where -1 signifies a strong prediction of a decrease in stock price, 1 signifies a strong prediction of an increase in stock price, and values in between indicate varying degrees of confidence in the stock's movement direction
-    Thought: {thought}
-    Explanation: {explanation}
-    Evaluate the explanation and generate a numeric score(with three s.f. ) for its impact on the stock market based on the following scale:
-    - Highly Positive News (0.7 to 1): Significant events that will likely lead to increased revenue, market share, or competitive advantage.
-
-    - Positive News (0.5 to 0.699): Events that are likely to have a good impact on the company's performance but are not game-changers.
-
-    - Neutral to Slightly Positive/Negative News (0.1 to 0.499 and -0.1 to -0.499): News with uncertain impacts, speculative developments, or minor updates.
-
-    - Negative News (-0.5 to -0.699): Events likely to negatively affect the company's performance in the short to medium term.
-
-    - Highly Negative News (-0.7 to -1): Major events that could significantly damage the company's reputation, financial health, or market position.
-
-    Example
-    HEADLINE: XYZ Corporation Reports Breakthrough in Battery Technology
-    VALUE: 0.867
-
-    Use this approach to provide a concise and accurate prediction of how news articles might impact stock prices, utilizing the entire scale for differentiation.
-
-    value will always be in three signficant figures!
-    Avoid clustering scores too closely around the center. You can be opinionated.
-    Only provide the numeric score.
-    """,
-)
-score_prompt = PromptTemplate(
-    input_variables=["thought", "explanation"],
-    template="""
-    no formatting and extra text
     Thought: {thought}
     Explanation: {explanation}
     Evaluate the explanation and generate a numeric score for its impact on the stock market based on the following scale:
     - Highly Positive: 0.7 to 1
     - Positive: 0.5 to 0.699
     - Neutral Positive: 0.1 to 0.499
-    - Neutral: -0.1 to 0.1 (ignored)
+    - Neutral: -0.1 to 0.1 
     - Neutral Negative: -0.499 to -0.1
     - Negative: -0.5 to -0.699
     - Highly Negative: -0.7 to -1
     The scores should follow a normal distribution similar to the bell curve, with significant deviations from the center. Ensure the values have three significant figures. Avoid clustering scores too closely around the center.
     you need to be more confident, do not rely on 0.4-0.7 be bold, be strong and think. don't fall into repetition
+    don't be afraid to be strongly negative or positive, or even strongly neutral
     Only provide the numeric score with no other characters except the sign, period, and integers that make the number.
     """,
 )
@@ -82,7 +51,6 @@ score_prompt = PromptTemplate(
 final_prediction_prompt = PromptTemplate(
     input_variables=["thoughts", "branches", "scores"],
     template="""
-    no formatting and extra text
     Thoughts: {thoughts}
     Branches: {branches}
     Scores: {scores}
@@ -132,8 +100,6 @@ def score_thought(thought, explanation):
         return []
     try:
         score = float(score)
-        if -0.1 <= score <= 0.1:
-            return "ignored"
     except ValueError:
         pass
     return score
@@ -144,15 +110,14 @@ def final_prediction(thoughts, branches, scores):
     negative_scores = []
     for score_list in scores:
         for score in score_list:
-            if score != "ignored":
-                try:
-                    score = float(score)
-                except ValueError:
-                    continue
-                if score > 0:
-                    positive_scores.append(score)
-                elif score < 0:
-                    negative_scores.append(score)
+            try:
+                score = float(score)
+            except ValueError:
+                continue
+            if score > 0:
+                positive_scores.append(score)
+            elif score < 0:
+                negative_scores.append(score)
     
     print("scores: ", scores)
     print("positive_scores: ", positive_scores)
@@ -161,7 +126,7 @@ def final_prediction(thoughts, branches, scores):
     if (len(positive_scores) - len(negative_scores)) in range(-2,2):
         final_score = 0  # Conflicting insights
     else:
-        final_score = (sum(positive_scores) + sum(negative_scores)) / (len(positive_scores) + len(negative_scores))
+        final_score = sum(scores) / len(scores)
 
     return round(final_score, 3)
 
