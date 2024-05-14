@@ -4,16 +4,12 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Set your OpenAI API key
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
-# Initialize the OpenAI language model with chat model and optimum temperature
 llm = ChatOpenAI(api_key=openai_api_key, model="gpt-4", temperature=0.3)
 
-# Define prompt templates for each step
 thought_prompt = PromptTemplate(
     input_variables=["headline", "article"],
     template="""
@@ -61,7 +57,6 @@ final_prediction_prompt = PromptTemplate(
     """,
 )
 
-# Create the conversation chains with the prompt templates
 thought_chain = LLMChain(llm=llm, prompt=thought_prompt)
 branch_chain = LLMChain(llm=llm, prompt=branch_prompt)
 score_chain = LLMChain(llm=llm, prompt=score_prompt)
@@ -99,7 +94,6 @@ def score_thought(thought, explanation):
     except:
         print(response)
         return []
-    # Convert score to float and ignore if it's in the neutral range
     try:
         score = float(score)
         if -0.1 <= score <= 0.1:
@@ -135,13 +129,11 @@ def final_prediction(thoughts, branches, scores):
 def analyze_article(headline, article):
     print("Analyzing Article...")
     print("Headline:", headline)
-    # Step 1: Generate Top 5 Initial Thoughts
     thoughts = generate_thoughts(headline, article)
     
     all_branches = []
     all_scores = []
     
-    # Step 2 and Step 3: Branch Out and Score Each Thought
     for thought in thoughts:
         branches = branch_out_thoughts(thought)
         all_branches.append(branches)
@@ -153,12 +145,10 @@ def analyze_article(headline, article):
         
         all_scores.append(scores)
     
-    # Step 4: Aggregate Insights and Provide Final Prediction
     prediction = final_prediction(thoughts, all_branches, all_scores)
     
     return prediction
 
-# Example usage
 headline = "XYZ Corporation Reports Breakthrough in Battery Technology"
 article = """
 XYZ Corporation has announced a significant breakthrough in battery technology that could revolutionize the electric vehicle market. The new technology promises to increase battery efficiency by 50%, reduce charging time by half, and extend the overall lifespan of the batteries. This innovation is expected to give XYZ Corporation a competitive edge in the rapidly growing electric vehicle industry.
