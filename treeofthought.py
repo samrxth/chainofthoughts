@@ -83,7 +83,7 @@ score_chain = LLMChain(llm=llmforscore, prompt=score_prompt)
 
 def generate_thoughts(headline, article):
     print("Generating Thoughts...")
-    response = thought_chain.run({"headline": headline, "article": article})
+    response = thought_chain.invoke({"headline": headline, "article": article})
     try:
         thoughts = response.strip().split('\n')
     except:
@@ -94,7 +94,7 @@ def generate_thoughts(headline, article):
 def branch_out_thoughts(thought):
     print("Branching Out Thoughts...")
     print("Thought:", thought)
-    response = branch_chain.run({"thought": thought})
+    response = branch_chain.invoke({"thought": thought})
     try:
         branches = response.strip().split('\n')
     except:
@@ -107,7 +107,7 @@ def score_thought(thought, explanation):
     print("Thought:", thought)
     print("Explanation:", explanation)
 
-    response = score_chain.run({"thought": thought, "explanation": explanation})
+    response = score_chain.invoke({"thought": thought, "explanation": explanation})
     try:
         score = response.strip()
     except:
