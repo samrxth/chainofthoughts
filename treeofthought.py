@@ -3,6 +3,7 @@ from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from dotenv import load_dotenv
+from assist import remove_outlier
 
 load_dotenv()
 
@@ -133,7 +134,16 @@ def final_prediction(thoughts, branches, scores):
     print(scores)
     node_extremes=[]
     for score_arr in scores:
-        score_arr = [float(score) for score in score_arr]
+        for i in range(len(score_arr)):
+            try:
+                score_arr[i] = float(score_arr[i])
+            except ValueError:
+                try:
+                    score_arr[i] = float(score_arr[i].split()[-1])
+                except ValueError:
+                    score_arr[i] = 0
+        score_arr = [score for score in score_arr if score != 0]
+        score_arr = remove_outlier(score_arr)
         if max(score_arr) > -min(score_arr):
             node_extremes.append(max(score_arr))
         else:
