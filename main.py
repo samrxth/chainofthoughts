@@ -16,7 +16,8 @@ thought_prompt = PromptTemplate(
     template="""
     Headline: {headline}
     Article: {article}
-    Generate the top 5 initial thoughts based on the news article. Do not generate an optimistic thought for a solely negative article and vice versa
+    do not generate any formatting or headings, simply give a list of thoughts in a list
+    Generate the top 5 initial thoughts based on the news article. Do not generate a very optimistic thought for a solely negative article
     """,
 )
 
@@ -25,6 +26,13 @@ branch_prompt = PromptTemplate(
     template="""
     Thought: {thought}
     Generate further insights and explanations for this thought.
+    do not generate any formatting or headings, simply give a flat list of unformatted insights
+    do not refrain from generating strongly negative or strongly positive insights if they seem fitting
+    correct type of answer:
+    - insight 1
+    - insight 2
+    - insight 3
+    - insight 4
     """,
 )
 
@@ -48,23 +56,9 @@ score_prompt = PromptTemplate(
     """,
 )
 
-final_prediction_prompt = PromptTemplate(
-    input_variables=["thoughts", "branches", "scores"],
-    template="""
-    Thoughts: {thoughts}
-    Branches: {branches}
-    Scores: {scores}
-    Aggregate the insights and provide a final prediction based on the best paths or indicate if there are too many conflicting insights.
-    - If the scores are mostly in one direction (positive or negative), provide a detailed score.
-    - If there are many conflicting scores, provide a score of 0 indicating confusion.
-    Only provide the final score.
-    """,
-)
-
 thought_chain = LLMChain(llm=llm, prompt=thought_prompt)
 branch_chain = LLMChain(llm=llm, prompt=branch_prompt)
 score_chain = LLMChain(llm=llmforscore, prompt=score_prompt)
-final_prediction_chain = LLMChain(llm=llm, prompt=final_prediction_prompt)
 
 def generate_thoughts(headline, article):
     print("Generating Thoughts...")
@@ -126,7 +120,19 @@ def final_prediction(thoughts, branches, scores):
     if (len(positive_scores) - len(negative_scores)) in range(-2,2):
         final_score = 0  # Conflicting insights
     else:
-        final_score = sum(scores) / len(scores)
+        flat_scores = []
+        for score_list in scores:
+            if isinstance(score_list, list):
+                for score in score_list:
+                    try:
+                        score = float(score)
+                    except ValueError:
+                        continue
+                    flat_scores.append(score)
+            elif isinstance(score_list, float):
+                flat_scores.append(score_list)
+
+        final_score = sum(flat_scores) / len(flat_scores)
 
     return round(final_score, 3)
 
