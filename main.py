@@ -120,6 +120,7 @@ def final_prediction(thoughts, branches, scores):
     if (len(positive_scores) - len(negative_scores)) in range(-2,2):
         final_score = 0  # Conflicting insights
     else:
+        # note: may turn this into average of sublist and then average of the averages
         flat_scores = []
         for score_list in scores:
             if isinstance(score_list, list):
