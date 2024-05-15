@@ -85,10 +85,13 @@ def generate_thoughts(headline, article):
     print("Generating Thoughts...")
     response = thought_chain.invoke({"headline": headline, "article": article})
     try:
-        thoughts = response.strip().split('\n')
+        thoughts = response['text'].strip().split('\n')
     except:
-        print(response)
-        return []
+        try:
+            thoughts = response.strip().split('\n')
+        except:
+            print(response['text'])
+            return []
     return [thought.strip() for thought in thoughts if thought.strip()]
 
 def branch_out_thoughts(thought):
@@ -96,10 +99,13 @@ def branch_out_thoughts(thought):
     print("Thought:", thought)
     response = branch_chain.invoke({"thought": thought})
     try:
-        branches = response.strip().split('\n')
+        branches = response['text'].strip().split('\n')
     except:
-        print(response)
-        return []
+        try:
+            branches = response.strip().split('\n')
+        except:
+            print(response['text'])
+            return []
     return [branch.strip() for branch in branches if branch.strip()]
 
 def score_thought(thought, explanation):
@@ -111,8 +117,11 @@ def score_thought(thought, explanation):
     try:
         score = response.strip()
     except:
-        print(response)
-        return []
+        try:
+            score = response['text'].strip()
+        except:
+            print(response)
+            return []
     try:
         score = float(score)
     except ValueError:
@@ -121,42 +130,51 @@ def score_thought(thought, explanation):
 
 def final_prediction(thoughts, branches, scores):
     print("Final Prediction...")
-    positive_scores = []
-    negative_scores = []
-    for score_list in scores:
-        for score in score_list:
-            try:
-                score = float(score)
-            except ValueError:
-                continue
-            if score > 0:
-                positive_scores.append(score)
-            elif score < 0:
-                negative_scores.append(score)
-    
-    print("scores: ", scores)
-    print("positive_scores: ", positive_scores)
-    print("negative_scores: ", negative_scores)
-
-    if (len(positive_scores) - len(negative_scores)) in range(-2,2):
-        final_score = 0  # Conflicting insights
-    else:
-        # note: may turn this into average of sublist and then average of the averages
-        flat_scores = []
-        for score_list in scores:
-            if isinstance(score_list, list):
-                for score in score_list:
-                    try:
-                        score = float(score)
-                    except ValueError:
-                        continue
-                    flat_scores.append(score)
-            elif isinstance(score_list, float):
-                flat_scores.append(score_list)
-
-        final_score = sum(flat_scores) / len(flat_scores)
-
-    return round(final_score, 3)
+    print(scores)
+    node_extremes=[]
+    for score_arr in scores:
+        score_arr = [float(score) for score in score_arr]
+        if max(score_arr) > -min(score_arr):
+            node_extremes.append(max(score_arr))
+        else:
+            node_extremes.append(min(score_arr))
+    return sum(node_extremes)/len(node_extremes)
+    # positive_scores = []
+    # negative_scores = []
+    # for score_list in scores:
+    #     for score in score_list:
+    #         try:
+    #             score = float(score)
+    #         except ValueError:
+    #             continue
+    #         if score > 0:
+    #             positive_scores.append(score)
+    #         elif score < 0:
+    #             negative_scores.append(score)
+    # 
+    # print("scores: ", scores)
+    # print("positive_scores: ", positive_scores)
+    # print("negative_scores: ", negative_scores)
+    #
+    # if (len(positive_scores) - len(negative_scores)) in range(-2,2):
+    #     final_score = 0  # Conflicting insights
+    # else:
+    #     # note: may turn this into average of sublist and then average of the averages
+    #     flat_scores = []
+    #     for score_list in scores:
+    #         if isinstance(score_list, list):
+    #             for score in score_list:
+    #                 try:
+    #                     score = float(score)
+    #                 except ValueError:
+    #                     continue
+    #                 flat_scores.append(score)
+    #         elif isinstance(score_list, float):
+    #             flat_scores.append(score_list)
+    #
+    #     final_score = sum(flat_scores) / len(flat_scores)
+    #
+    # return round(final_score, 3)
 
 def analyze_article(headline, article):
     print("Analyzing Article...")
