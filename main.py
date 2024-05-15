@@ -53,6 +53,27 @@ score_prompt = PromptTemplate(
     you need to be more confident, do not rely on 0.4-0.7 be bold, be strong and think. don't fall into repetition
     don't be afraid to be strongly negative or positive, or even strongly neutral
     Only provide the numeric score with no other characters except the sign, period, and integers that make the number.
+    
+    Shot 1:
+    Thought: Nvidia is generating excitement with its focus on AI advancements at the upcoming GTC.
+    Explanation 1: Nvidia's continued leadership in AI could significantly enhance its market position, making it an attractive option for investors looking for growth in cutting-edge technology sectors.
+    Score: +0.967
+    Explanation 2: The anticipation of new AI products is expected to boost investor enthusiasm and could lead to a notable increase in Nvidia’s stock price as the market reacts to the potential for groundbreaking innovations.
+    Score: +0.894
+
+    Shot 2:
+    Thought: META is grappling with heightened scrutiny over its data handling and privacy practices.
+    Explanation 1: Increased regulatory scrutiny could result in stringent compliance costs and restrictions, possibly chilling investor sentiment due to fears of decreased operational flexibility.
+    Score: -0.753
+    Explanation 2: Persistent privacy concerns might lead to reduced user engagement, impacting ad revenues and posing a substantial threat to META's core business model.
+    Score: -0.817
+
+    Shot 3:
+    Thought: Laser Photonics Corporate is making steady progress in its operational strategies without disrupting the market.
+    Explanation 1: The company’s consistent and strategic updates may reassure existing investors of stability but are unlikely to draw significant new investment in the short term.
+    Score: +0.143
+    Explanation 2: While operational updates are positive, they do not significantly shift the market dynamics or impact the stock price in a major way, leading to a minimal change in investor perception.
+    Score: +0.057
     """,
 )
 
