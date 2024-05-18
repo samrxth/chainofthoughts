@@ -83,7 +83,6 @@ branch_chain = LLMChain(llm=llm, prompt=branch_prompt)
 score_chain = LLMChain(llm=llmforscore, prompt=score_prompt)
 
 def generate_thoughts(headline, article):
-    print("Generating Thoughts...")
     response = thought_chain.invoke({"headline": headline, "article": article})
     try:
         thoughts = response['text'].strip().split('\n')
@@ -91,13 +90,10 @@ def generate_thoughts(headline, article):
         try:
             thoughts = response.strip().split('\n')
         except:
-            print(response['text'])
             return []
     return [thought.strip() for thought in thoughts if thought.strip()]
 
 def branch_out_thoughts(thought):
-    print("Branching Out Thoughts...")
-    print("Thought:", thought)
     response = branch_chain.invoke({"thought": thought})
     try:
         branches = response['text'].strip().split('\n')
@@ -105,15 +101,10 @@ def branch_out_thoughts(thought):
         try:
             branches = response.strip().split('\n')
         except:
-            print(response['text'])
             return []
     return [branch.strip() for branch in branches if branch.strip()]
 
 def score_thought(thought, explanation):
-    print("Scoring Thought...")
-    print("Thought:", thought)
-    print("Explanation:", explanation)
-
     response = score_chain.invoke({"thought": thought, "explanation": explanation})
     try:
         score = response.strip()
@@ -130,7 +121,6 @@ def score_thought(thought, explanation):
     return score
 
 def final_prediction(thoughts, branches, scores):
-    print("Final Prediction...")
     print(scores)
     node_extremes=[]
     for score_arr in scores:
@@ -186,9 +176,7 @@ def final_prediction(thoughts, branches, scores):
     #
     # return round(final_score, 3)
 
-def analyze_article(headline, article):
-    print("Analyzing Article...")
-    print("Headline:", headline)
+def ToT(headline, article):
     thoughts = generate_thoughts(headline, article)
     
     all_branches = []
@@ -206,41 +194,6 @@ def analyze_article(headline, article):
         all_scores.append(scores)
     
     prediction = final_prediction(thoughts, all_branches, all_scores)
+    print("ToT score:", prediction)
     
     return prediction
-
-headline = "RBI imposes business curbs on Kotak Bank for IT infra deficiency"
-article = """
-The bank has been barred from onboarding new customers through online, mobile banking channels, issuing fresh credit cards
-
-The Reserve Bank of India (RBI) on Wednesday directed Kotak Mahindra Bank Ltd. (Kotak Bank) to cease and desist, with immediate effect, from onboarding of new customers through its online and mobile banking channels and issuing fresh credit cards. 
-
-
-Kotak Bank is however allowed to continue to provide services to its existing customers, including its credit card customers.
-
-“These actions are necessitated based on significant concerns arising out of Reserve Bank’s IT examination of the bank for the years 2022 and 2023 and the continued failure on the part of the bank to address these concerns in a comprehensive and timely manner,” the central bank said in its directive.
-
-“Serious deficiencies and non-compliances were observed in the areas of IT inventory management, patch and change management, user access management, vendor risk management, data security and data leak prevention strategy, business continuity and disaster recovery rigour and drill, etc.,” it said. 
-
-“For two consecutive years, the bank was assessed to be deficient in its IT risk and information security governance, contrary to requirements under regulatory guidelines,” the RBI added.
-
-The banking regulator said during the subsequent assessments, Kotak Bank was found to be “significantly non-compliant” with the corrective action plans issued by the Reserve Bank for the years 2022 and 2023, as the compliances submitted by the bank were found to be either “inadequate, incorrect or not sustained.”
-
-In the absence of a robust IT infrastructure and IT risk management framework, the bank’s Core Banking System (CBS) and its online and digital banking channels have suffered frequent and significant outages in the last two years, the recent one being a service disruption on April 15, 2024, resulting in serious customer inconveniences, it added. 
-
-“The bank is found to be materially deficient in building necessary operational resilience on account of its failure to build IT systems and controls commensurate with its growth,” the regulator observed. 
-
-‘Far from satisfactory’
-The RBI said in the past two years it had been in continuous high-level engagement with the bank on all these concerns with a view to strengthening its IT resilience, but the outcomes had been far from satisfactory. 
-
-“It is also observed that, of late, there has been rapid growth in the volume of the bank’s digital transactions, including transactions pertaining to credit cards, which is building further load on the IT systems,” the RBI said. 
-
-Therefore, the RBI decided to place certain business restrictions on Kotak Bank in the interest of customers and to prevent any possible prolonged outage which might seriously impact not only the bank’s ability to render efficient customer service but also the financial ecosystem of digital banking and payment systems.
-
-Kotak Bank through an external agency in a statement said, “The bank has taken measures for adoption of new technologies to strengthen its IT systems and will continue to work with the RBI to swiftly resolve balance issues at the earliest.”
-
-“We want to reassure our existing customers of uninterrupted services, including credit card, mobile and net banking. Our branches continue to welcome and onboard new customers, providing them with all the services, apart from issuance of new credit cards.”
-"""
-result = analyze_article(headline, article)
-print(result)
-

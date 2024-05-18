@@ -67,41 +67,6 @@ score_prompt = PromptTemplate(
 
 score_chain = LLMChain(llm=llm, prompt=score_prompt)
 
-def analyze_article(headline, article):
-    return score_chain.invoke({"headline": headline, "article": article})
-
-headline = "RBI imposes business curbs on Kotak Bank for IT infra deficiency"
-article = """
-The bank has been barred from onboarding new customers through online, mobile banking channels, issuing fresh credit cards
-
-The Reserve Bank of India (RBI) on Wednesday directed Kotak Mahindra Bank Ltd. (Kotak Bank) to cease and desist, with immediate effect, from onboarding of new customers through its online and mobile banking channels and issuing fresh credit cards. 
-
-
-Kotak Bank is however allowed to continue to provide services to its existing customers, including its credit card customers.
-
-“These actions are necessitated based on significant concerns arising out of Reserve Bank’s IT examination of the bank for the years 2022 and 2023 and the continued failure on the part of the bank to address these concerns in a comprehensive and timely manner,” the central bank said in its directive.
-
-“Serious deficiencies and non-compliances were observed in the areas of IT inventory management, patch and change management, user access management, vendor risk management, data security and data leak prevention strategy, business continuity and disaster recovery rigour and drill, etc.,” it said. 
-
-“For two consecutive years, the bank was assessed to be deficient in its IT risk and information security governance, contrary to requirements under regulatory guidelines,” the RBI added.
-
-The banking regulator said during the subsequent assessments, Kotak Bank was found to be “significantly non-compliant” with the corrective action plans issued by the Reserve Bank for the years 2022 and 2023, as the compliances submitted by the bank were found to be either “inadequate, incorrect or not sustained.”
-
-In the absence of a robust IT infrastructure and IT risk management framework, the bank’s Core Banking System (CBS) and its online and digital banking channels have suffered frequent and significant outages in the last two years, the recent one being a service disruption on April 15, 2024, resulting in serious customer inconveniences, it added. 
-
-“The bank is found to be materially deficient in building necessary operational resilience on account of its failure to build IT systems and controls commensurate with its growth,” the regulator observed. 
-
-‘Far from satisfactory’
-The RBI said in the past two years it had been in continuous high-level engagement with the bank on all these concerns with a view to strengthening its IT resilience, but the outcomes had been far from satisfactory. 
-
-“It is also observed that, of late, there has been rapid growth in the volume of the bank’s digital transactions, including transactions pertaining to credit cards, which is building further load on the IT systems,” the RBI said. 
-
-Therefore, the RBI decided to place certain business restrictions on Kotak Bank in the interest of customers and to prevent any possible prolonged outage which might seriously impact not only the bank’s ability to render efficient customer service but also the financial ecosystem of digital banking and payment systems.
-
-Kotak Bank through an external agency in a statement said, “The bank has taken measures for adoption of new technologies to strengthen its IT systems and will continue to work with the RBI to swiftly resolve balance issues at the earliest.”
-
-“We want to reassure our existing customers of uninterrupted services, including credit card, mobile and net banking. Our branches continue to welcome and onboard new customers, providing them with all the services, apart from issuance of new credit cards.”
-"""
-
-result = analyze_article(headline, article)
-print("Impact Score:", float(result['text']))
+def Di(headline, article):
+    result = score_chain.invoke({"headline": headline, "article": article})
+    print("Direct score:", float(result['text']))
